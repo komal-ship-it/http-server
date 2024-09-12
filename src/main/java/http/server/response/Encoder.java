@@ -6,11 +6,9 @@ import http.server.Main;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
-public class Writer {
+public class Encoder {
 
   public static String CONTENT_TYPE_KEY = "Content-Type";
   public static String CONTENT_LENGTH_KEY = "Content-Length";
@@ -19,7 +17,7 @@ public class Writer {
 
 
   OutputStream os;
-  public Writer(OutputStream os){
+  public Encoder(OutputStream os){
     this.os = os;
   }
 

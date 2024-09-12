@@ -3,7 +3,7 @@ package http.server;
 import http.server.request.Decoder;
 import http.server.request.Request;
 import http.server.request.RequestLine;
-import http.server.response.Writer;
+import http.server.response.Encoder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,37 +28,20 @@ public class Main {
        // ensures that we don't run into 'Address already in use' errors
        serverSocket.setReuseAddress(true);
 
-       Socket client = serverSocket.accept(); // Wait for connection from client.
+       while (true){
+         Socket client = serverSocket.accept(); // Wait for connection from client.
+         System.out.println("accepted new connection");
 
-       InputStream  clientInputStream  = client.getInputStream();
-       Decoder decoder = new Decoder();
-       OutputStream clientOutputStream = client.getOutputStream();
-       Writer       writer             = new Writer(clientOutputStream);
-
-       if(client.isClosed()) return;
-       Request request = decoder.parseRequest(clientInputStream);
-       if(request == null) return;
-
-       RequestLine requestLine = request.requestLine;
-       if(requestLine.requestTarget.equals("/")){
-         // writing OK to client stream
-         writer.write("200", "OK");
-       } else if(requestLine.requestTarget.contains("/echo")){
-         String echoedElem = requestLine.requestTarget.split("/")[2];
-         // writing OK to client stream
-         writer.writeOkResponse(echoedElem);
-       } else if(requestLine.requestTarget.contains("/user-agent")){
-         if(!request.headers.headerMap.containsKey(Headers.USER_AGENT_HEADER)){
-           System.out.println("Could not find user-agent header in request");
-         }
-
-         writer.writeOkResponse(request.headers.headerMap.get(Headers.USER_AGENT_HEADER));
-       } else {
-         // writing Not_found to client stream
-         writer.write("404", "Not Found");
+         new Thread(() -> {
+           try {
+             ClientHandler.handleClient(client);
+           } catch (Exception ex){
+             System.out.println("Exception while handling client" + ex.getMessage());
+             throw new RuntimeException(ex);
+           }
+         }).start();
        }
 
-       System.out.println("accepted new connection");
      } catch (IOException e) {
        System.out.println("IOException: " + e.getMessage());
      }
