@@ -5,13 +5,11 @@ import http.server.request.Request;
 import http.server.request.RequestLine;
 import http.server.response.Encoder;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.zip.GZIPOutputStream;
 
 import static http.server.Headers.ACCEPT_ENCODING_HEADER;
 
@@ -42,8 +40,20 @@ public class ClientHandler {
 
     else if(requestLine.requestTarget.contains("/echo")){
       String echoedElem = requestLine.requestTarget.split("/")[2];
-      // writing OK to client stream
-      encoder.writeOkResponse(echoedElem, Encoder.PLAIN_CONTENT_TYPE_KEY, isCompressed);
+
+      if(isCompressed){
+        byte[] compressedData = compress(echoedElem);
+        String GZIP_BASE = "HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: ";
+        byte[] base =
+                (GZIP_BASE + compressedData.length + "\r\n\r\n").getBytes();
+        clientOutputStream.write(base);
+        clientOutputStream.write(compressedData);
+        clientOutputStream.flush();
+
+
+      } else {
+        encoder.writeOkResponse(echoedElem, Encoder.PLAIN_CONTENT_TYPE_KEY, false);
+      }
     }
 
     else if(requestLine.requestTarget.contains("/user-agent")){
@@ -80,5 +90,17 @@ public class ClientHandler {
       // writing Not_found to client stream
       encoder.write("404", "Not Found");
     }
+  }
+
+  private static byte[] compress(final String str) throws IOException {
+    if ((str == null) || (str.length() == 0)) {
+      return null;
+    }
+    ByteArrayOutputStream obj = new ByteArrayOutputStream();
+    GZIPOutputStream gzip = new GZIPOutputStream(obj);
+    gzip.write(str.getBytes("UTF-8"));
+    gzip.flush();
+    gzip.close();
+    return obj.toByteArray();
   }
 }
