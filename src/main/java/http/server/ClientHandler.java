@@ -32,7 +32,7 @@ public class ClientHandler {
     Headers headers = request.headers;
     Boolean isCompressed = false;
     if(headers.headerMap.containsKey(ACCEPT_ENCODING_HEADER) &&
-            headers.headerMap.get(ACCEPT_ENCODING_HEADER).equals(Encoder.GZIP_CONTENT_ENCODING_VALUE)){
+            headers.headerMap.get(ACCEPT_ENCODING_HEADER).contains(Encoder.GZIP_CONTENT_ENCODING_VALUE)){
       isCompressed = true;
     }
     if(requestLine.requestTarget.equals("/")){
