@@ -1,6 +1,7 @@
 package http.server;
 
 import http.server.request.Decoder;
+import http.server.request.Request;
 import http.server.request.RequestLine;
 import http.server.response.Writer;
 
@@ -35,9 +36,10 @@ public class Main {
        Writer       writer             = new Writer(clientOutputStream);
 
        if(client.isClosed()) return;
-       RequestLine requestLine = decoder.parseRequest(clientInputStream);
-       if(requestLine == null) return;
+       Request request = decoder.parseRequest(clientInputStream);
+       if(request == null) return;
 
+       RequestLine requestLine = request.requestLine;
        if(requestLine.requestTarget.equals("/")){
          // writing OK to client stream
          writer.write("200", "OK");
@@ -45,6 +47,12 @@ public class Main {
          String echoedElem = requestLine.requestTarget.split("/")[2];
          // writing OK to client stream
          writer.writeOkResponse(echoedElem);
+       } else if(requestLine.requestTarget.contains("/user-agent")){
+         if(!request.headers.headerMap.containsKey(Headers.USER_AGENT_HEADER)){
+           System.out.println("Could not find user-agent header in request");
+         }
+
+         writer.writeOkResponse(request.headers.headerMap.get(Headers.USER_AGENT_HEADER));
        } else {
          // writing Not_found to client stream
          writer.write("404", "Not Found");

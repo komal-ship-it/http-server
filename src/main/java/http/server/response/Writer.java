@@ -1,6 +1,6 @@
 package http.server.response;
 
-import http.server.Header;
+import http.server.Headers;
 import http.server.Main;
 
 import java.io.IOException;
@@ -50,10 +50,14 @@ public class Writer {
     ResponseLine responseLine= new ResponseLine(Main.HTTP_VERSION, "200", "OK");
 
     try {
+      HashMap<String, String> headerMap = new HashMap<>();
+      headerMap.put(CONTENT_TYPE_KEY, PLAIN_CONTENT_TYPE_KEY);
+      headerMap.put(CONTENT_LENGTH_KEY, String.valueOf(msg.getBytes(StandardCharsets.UTF_8).length));
+      Headers headers = new Headers(headerMap);
+
       String responseMsg  = responseLine + Main.CLRF +
-              new Header(CONTENT_TYPE_KEY, PLAIN_CONTENT_TYPE_KEY) +
-              new Header(CONTENT_LENGTH_KEY, String.valueOf(msg.length())) +
-              Main.CLRF + msg;
+              headers.toString() +
+              msg;
       os.write(responseMsg.getBytes(StandardCharsets.UTF_8));
       os.flush();
     } catch (IOException e) {
