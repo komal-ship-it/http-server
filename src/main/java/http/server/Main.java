@@ -21,29 +21,7 @@ public class Main {
 
     // Uncomment this block to pass the first stage
 
-     try {
-       ServerSocket serverSocket = new ServerSocket(4221);
-
-       // Since the tester restarts your program quite often, setting SO_REUSEADDR
-       // ensures that we don't run into 'Address already in use' errors
-       serverSocket.setReuseAddress(true);
-
-       while (true){
-         Socket client = serverSocket.accept(); // Wait for connection from client.
-         System.out.println("accepted new connection");
-
-         new Thread(() -> {
-           try {
-             ClientHandler.handleClient(client);
-           } catch (Exception ex){
-             System.out.println("Exception while handling client" + ex.getMessage());
-             throw new RuntimeException(ex);
-           }
-         }).start();
-       }
-
-     } catch (IOException e) {
-       System.out.println("IOException: " + e.getMessage());
-     }
+     HttpServer httpServer = new HttpServer(4221, 10);
+     httpServer.run();
   }
 }
