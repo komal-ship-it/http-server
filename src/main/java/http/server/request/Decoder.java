@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,16 +36,35 @@ public class Decoder {
       HashMap<String, String> headerMap = new HashMap<>();
       Headers headers = new Headers(headerMap);
 
-      while ((header = reader.readLine()) != null && !header.isEmpty()){
+      while (!(header = reader.readLine()).isEmpty()){
         String[] headerContent = header.split(":");
         headerMap.put(headerContent[0], headerContent[1].trim());
       }
 
+//      String message= "";
+//      String temp;
+//      if((temp = reader.readLine())!=null) message = temp;
+
+//      BufferedReader bufferedReader =
+//              new BufferedReader(new InputStreamReader(inputStream));
+//
+//      StringBuffer bodyBuffer = new StringBuffer();
+//      while (bufferedReader.ready()) {
+//        bodyBuffer.append((char)bufferedReader.read());
+//      }
+//      String body = bodyBuffer.toString();
+
+      int contentLength =
+              Integer.parseInt(headerMap.getOrDefault("Content-Length", "0"));
+      char[] body = new char[contentLength];
+      reader.read(body, 0, contentLength);
+      String bodyContent = new String(body);
+      System.out.println("body read " + bodyContent);
 
       return new Request(
               new RequestLine(method, target, httpVersion),
               headers,
-              null
+              bodyContent.getBytes(StandardCharsets.UTF_8)
       );
     } catch (IOException e) {
       System.out.println("Exception while parsing request: " + e);

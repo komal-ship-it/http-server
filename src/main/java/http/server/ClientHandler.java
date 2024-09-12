@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 public class ClientHandler {
@@ -48,12 +49,23 @@ public class ClientHandler {
     else if(requestLine.requestTarget.contains("/files")){
       String fileName = requestLine.requestTarget.split("/")[2];
       File file = new File(HttpServer.directoryName, fileName);
-      if(file.exists()){
-        String fileContent = Files.readString(file.toPath());
-        encoder.writeOkResponse(fileContent, Encoder.OCTET_STREAM_CONTENT_TYPE_KEY);
-      }else {
-        encoder.write("404", "Not Found");
+
+      if(requestLine.httpMethod == HTTPMethod.POST){
+        Boolean isCreated = file.createNewFile();
+        System.out.println("New file created: " + isCreated);
+        Files.write(file.toPath(), request.body);
+
+        encoder.write("201", "Created");
+      } else {
+
+        if(file.exists()){
+          String fileContent = Files.readString(file.toPath());
+          encoder.writeOkResponse(fileContent, Encoder.OCTET_STREAM_CONTENT_TYPE_KEY);
+        }else {
+          encoder.write("404", "Not Found");
+        }
       }
+
     }
 
     else {
