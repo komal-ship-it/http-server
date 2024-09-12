@@ -2,6 +2,7 @@ package http.server;
 
 import http.server.request.Decoder;
 import http.server.request.RequestLine;
+import http.server.response.Writer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,9 +37,14 @@ public class Main {
        if(client.isClosed()) return;
        RequestLine requestLine = decoder.parseRequest(clientInputStream);
        if(requestLine == null) return;
+
        if(requestLine.requestTarget.equals("/")){
          // writing OK to client stream
          writer.write("200", "OK");
+       } else if(requestLine.requestTarget.contains("/echo")){
+         String echoedElem = requestLine.requestTarget.split("/")[2];
+         // writing OK to client stream
+         writer.writeOkResponse(echoedElem);
        } else {
          // writing Not_found to client stream
          writer.write("404", "Not Found");
