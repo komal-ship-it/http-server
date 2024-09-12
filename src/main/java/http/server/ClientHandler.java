@@ -13,6 +13,8 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+import static http.server.Headers.ACCEPT_ENCODING_HEADER;
+
 public class ClientHandler {
 
   public static void handleClient(Socket client) throws IOException {
@@ -27,6 +29,12 @@ public class ClientHandler {
     if(request == null) return;
 
     RequestLine requestLine = request.requestLine;
+    Headers headers = request.headers;
+    Boolean isCompressed = false;
+    if(headers.headerMap.containsKey(ACCEPT_ENCODING_HEADER) &&
+            headers.headerMap.get(ACCEPT_ENCODING_HEADER).equals(Encoder.GZIP_CONTENT_ENCODING_VALUE)){
+      isCompressed = true;
+    }
     if(requestLine.requestTarget.equals("/")){
       // writing OK to client stream
       encoder.write("200", "OK");
@@ -35,7 +43,7 @@ public class ClientHandler {
     else if(requestLine.requestTarget.contains("/echo")){
       String echoedElem = requestLine.requestTarget.split("/")[2];
       // writing OK to client stream
-      encoder.writeOkResponse(echoedElem, Encoder.PLAIN_CONTENT_TYPE_KEY);
+      encoder.writeOkResponse(echoedElem, Encoder.PLAIN_CONTENT_TYPE_KEY, isCompressed);
     }
 
     else if(requestLine.requestTarget.contains("/user-agent")){
@@ -43,7 +51,7 @@ public class ClientHandler {
         System.out.println("Could not find user-agent header in request");
       }
 
-      encoder.writeOkResponse(request.headers.headerMap.get(Headers.USER_AGENT_HEADER), Encoder.PLAIN_CONTENT_TYPE_KEY);
+      encoder.writeOkResponse(request.headers.headerMap.get(Headers.USER_AGENT_HEADER), Encoder.PLAIN_CONTENT_TYPE_KEY, isCompressed);
     }
 
     else if(requestLine.requestTarget.contains("/files")){
@@ -60,7 +68,7 @@ public class ClientHandler {
 
         if(file.exists()){
           String fileContent = Files.readString(file.toPath());
-          encoder.writeOkResponse(fileContent, Encoder.OCTET_STREAM_CONTENT_TYPE_KEY);
+          encoder.writeOkResponse(fileContent, Encoder.OCTET_STREAM_CONTENT_TYPE_KEY, isCompressed);
         }else {
           encoder.write("404", "Not Found");
         }

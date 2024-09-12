@@ -41,21 +41,7 @@ public class Decoder {
         headerMap.put(headerContent[0], headerContent[1].trim());
       }
 
-//      String message= "";
-//      String temp;
-//      if((temp = reader.readLine())!=null) message = temp;
-
-//      BufferedReader bufferedReader =
-//              new BufferedReader(new InputStreamReader(inputStream));
-//
-//      StringBuffer bodyBuffer = new StringBuffer();
-//      while (bufferedReader.ready()) {
-//        bodyBuffer.append((char)bufferedReader.read());
-//      }
-//      String body = bodyBuffer.toString();
-
-      int contentLength =
-              Integer.parseInt(headerMap.getOrDefault("Content-Length", "0"));
+      int contentLength = Integer.parseInt(headerMap.getOrDefault("Content-Length", "0"));
       char[] body = new char[contentLength];
       reader.read(body, 0, contentLength);
       String bodyContent = new String(body);

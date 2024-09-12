@@ -5,6 +5,9 @@ import java.util.Map;
 
 public class Headers {
   public static String USER_AGENT_HEADER = "User-Agent";
+
+  public static String ACCEPT_ENCODING_HEADER = "Accept-Encoding";
+
   HashMap<String, String > headerMap;
 
   public Headers(HashMap<String, String > headerMap){

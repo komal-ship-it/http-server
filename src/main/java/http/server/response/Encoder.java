@@ -13,10 +13,13 @@ public class Encoder {
   public static String CONTENT_TYPE_KEY = "Content-Type";
   public static String CONTENT_LENGTH_KEY = "Content-Length";
 
+  public static String CONTENT_ENCODING_KEY = "Content-Encoding";
+
   public static String PLAIN_CONTENT_TYPE_KEY = "text/plain";
 
   public static String OCTET_STREAM_CONTENT_TYPE_KEY = "application/octet-stream";
 
+  public static String GZIP_CONTENT_ENCODING_VALUE = "gzip";
 
 
   OutputStream os;
@@ -47,17 +50,20 @@ public class Encoder {
     }
   }
 
-  public void writeOkResponse(String msg, String contentType){
+  public void writeOkResponse(String msg, String contentType, Boolean isCompressed){
     ResponseLine responseLine= new ResponseLine(Main.HTTP_VERSION, "200", "OK");
 
     try {
       HashMap<String, String> headerMap = new HashMap<>();
       headerMap.put(CONTENT_TYPE_KEY, contentType);
       headerMap.put(CONTENT_LENGTH_KEY, String.valueOf(msg.getBytes(StandardCharsets.UTF_8).length));
+      if(isCompressed){
+        headerMap.put(CONTENT_ENCODING_KEY, GZIP_CONTENT_ENCODING_VALUE);
+      }
       Headers headers = new Headers(headerMap);
 
       String responseMsg  = responseLine + Main.CLRF +
-              headers.toString() +
+              headers +
               msg;
       os.write(responseMsg.getBytes(StandardCharsets.UTF_8));
       os.flush();
