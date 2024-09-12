@@ -49,8 +49,6 @@ public class ClientHandler {
         clientOutputStream.write(base);
         clientOutputStream.write(compressedData);
         clientOutputStream.flush();
-
-
       } else {
         encoder.writeOkResponse(echoedElem, Encoder.PLAIN_CONTENT_TYPE_KEY, false);
       }
