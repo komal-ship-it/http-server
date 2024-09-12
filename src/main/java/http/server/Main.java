@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class Main {
   public static String HTTP_VERSION = "HTTP/1.1";
@@ -21,7 +22,7 @@ public class Main {
 
     // Uncomment this block to pass the first stage
 
-     HttpServer httpServer = new HttpServer(4221, 10);
+     HttpServer httpServer = new HttpServer(4221, 10, args);
      httpServer.run();
   }
 }

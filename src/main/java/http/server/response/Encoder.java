@@ -15,6 +15,9 @@ public class Encoder {
 
   public static String PLAIN_CONTENT_TYPE_KEY = "text/plain";
 
+  public static String OCTET_STREAM_CONTENT_TYPE_KEY = "application/octet-stream";
+
+
 
   OutputStream os;
   public Encoder(OutputStream os){
@@ -44,12 +47,12 @@ public class Encoder {
     }
   }
 
-  public void writeOkResponse(String msg){
+  public void writeOkResponse(String msg, String contentType){
     ResponseLine responseLine= new ResponseLine(Main.HTTP_VERSION, "200", "OK");
 
     try {
       HashMap<String, String> headerMap = new HashMap<>();
-      headerMap.put(CONTENT_TYPE_KEY, PLAIN_CONTENT_TYPE_KEY);
+      headerMap.put(CONTENT_TYPE_KEY, contentType);
       headerMap.put(CONTENT_LENGTH_KEY, String.valueOf(msg.getBytes(StandardCharsets.UTF_8).length));
       Headers headers = new Headers(headerMap);
 
